@@ -34,7 +34,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QOpenGLWidget" name="ogwDraw"/>
+     <widget class="GameDrawer" name="widget" native="true"/>
     </item>
    </layout>
   </widget>
@@ -70,6 +70,14 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>GameDrawer</class>
+   <extends>QWidget</extends>
+   <header>gamedrawer.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

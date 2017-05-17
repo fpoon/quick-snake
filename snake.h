@@ -2,12 +2,16 @@
 #define SNAKE_H
 
 #include <list>
+#include <vector>
 
 #include <QPainter>
 
 #include "point.h"
 
-#define INITIAL_PIECES 4
+#define MAP_W 32
+#define MAP_H 32
+
+#define START_LENGTH 4
 
 #define DIRECTION_EAST  0
 #define DIRECTION_SOUTH 1
@@ -16,13 +20,12 @@
 
 class Snake
 {
-    std::list<Point> body; //List of points creating snake body
+    std::list<Point*> body; //List of points creating snake body
     int direction;         //Direction of snake
+    std::vector<std::vector<Point>> &v; //Board
 public:
-    Snake();
+    Snake(std::vector<std::vector<Point>> &v, int w, int startx, int starty);
     int nextFrame();         //Move snake. If snake encounters barrier returns 1
-    void draw(QPainter &qp); //Draw snake
-    int snack(Point &snack); //Check if encouters snack
     void changeDirection(int d); //Change direction of snake
 };
 
