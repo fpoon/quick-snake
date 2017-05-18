@@ -26,15 +26,18 @@ Game::Game()
 
 Game::~Game()
 {
-    delete snake;
+    if (snake)
+        delete snake;
 }
 
 void Game::nextFrame()
 {
     int size;
     snake->nextFrame();
-    if (snack && snack->type != PTYPE_SNACK)
+    if (snack && snack->type != PTYPE_SNACK) {
+        score++;
         placeSnack();
+    }
     size = swallowed.size();
 
     for (int i = 0; i < size; i++)
@@ -54,6 +57,11 @@ Point *Game::getSnack()
 std::list<Point *> Game::getSwallowed()
 {
     return swallowed;
+}
+
+int Game::getScore()
+{
+    return score;
 }
 
 Snake *Game::getSnake()

@@ -30,6 +30,7 @@ protected:
     void drawSnake(QPainter &qp);
     void drawSnacks(QPainter &qp);
     void drawDebugGrid(QPainter &qp);
+    void drawScore(QPainter &qp);
     void startGame();
 };
 

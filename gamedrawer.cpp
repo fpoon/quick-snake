@@ -3,11 +3,13 @@
 #include <list>
 #include <cmath>
 #include <cstdlib>
+#include <string>
 
 #include <QPainter>
 #include <QColor>
 #include <QBrush>
 #include <QKeyEvent>
+#include <QFont>
 
 #include "snake.h"
 
@@ -23,24 +25,26 @@ GameDrawer::GameDrawer(QWidget *parent) : QWidget(parent)
 
 GameDrawer::~GameDrawer()
 {
+    if (game)
+        delete game;
 }
 
 void GameDrawer::paintEvent(QPaintEvent *event)
 {
     w = this->size().width();
     h = this->size().height();
-    cellW = (float)w/(float)MAP_W;
-    cellH = (float)h/(float)MAP_H;
 
     QPainter qp(this);
     qp.fillRect(0, 0, w, h, QColor(0,0,0));
-
+    h *= 0.9f;
+    cellW = (float)w/(float)MAP_W;
+    cellH = (float)h/(float)MAP_H;
 
     drawDebugGrid(qp);
     drawBorders(qp);
     drawSnacks(qp);
     drawSnake(qp);
-
+    drawScore(qp);
 }
 
 void GameDrawer::keyPressEvent(QKeyEvent *event)
@@ -138,7 +142,15 @@ void GameDrawer::drawDebugGrid(QPainter &qp)
     for (float x = 0; x < w; x += cellW)
          qp.drawLine(x, 0, x, h);
     for (float y = 0; y < h; y += cellH)
-         qp.drawLine(0, y, w, y);
+        qp.drawLine(0, y, w, y);
+}
+
+void GameDrawer::drawScore(QPainter &qp)
+{
+    string s = "Score: ";
+    s += to_string(game->getScore());
+    qp.setFont(QFont("Monospace", size().height()*0.05));
+    qp.drawText(10, this->size().height()*0.975, s.c_str());
 }
 
 void GameDrawer::startGame()

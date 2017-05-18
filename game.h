@@ -16,6 +16,7 @@ private:
     Point * snack = nullptr;
     std::list<Point*> swallowed;
     Snake * snake = nullptr;
+    int score = 0;
 
     void placeSnack();
 public:
