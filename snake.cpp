@@ -22,7 +22,8 @@ int Snake::nextFrame()
     bool crash = false;
     Point *head = body.front();
     Point *tail = body.back();
-
+    if (newDirection != direction)
+        direction = newDirection;
     switch (direction) {
     case DIRECTION_EAST:
         x = 1, y = 0;
@@ -82,6 +83,5 @@ void Snake::changeDirection(int d)
         (direction == DIRECTION_WEST && d == DIRECTION_EAST))
         return;
 
-    direction = d;
-    block = true;
+    newDirection = d;
 }

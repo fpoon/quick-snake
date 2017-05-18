@@ -22,6 +22,7 @@ class Snake
 {
 private:
     int direction;         //Direction of snake
+    int newDirection;
     bool block = false;
     std::vector<std::vector<Point>> &v; //Board
 
