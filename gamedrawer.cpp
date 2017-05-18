@@ -23,10 +23,11 @@ using namespace std;
 GameDrawer::GameDrawer(QWidget *parent) : QWidget(parent)
 {
     gameSpeed = SPEED_SLOW;
-    gameState = GS_NO_GAME;
+    gameState = GS_PAUSED;
     game = nullptr;
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(nextFrame()));
+    startGame(true, SPEED_SLOW);
 }
 
 GameDrawer::~GameDrawer()
@@ -75,24 +76,27 @@ void GameDrawer::paintEvent(QPaintEvent *event)
 
 void GameDrawer::keyPressEvent(QKeyEvent *event)
 {
+    if (event->key() == Qt::Key_Space)
+        pause();
+
     if (gameState != GS_PLAY)
         return;
     Snake * snake = game->getSnake();
 
     switch (event->key()) {
-    case Qt::Key_Space:
-
-        //printf("Space bar\n");
-        break;
+    case Qt::Key_W:
     case Qt::Key_Up:
         snake->changeDirection(DIRECTION_NORTH);
         break;
+    case Qt::Key_D:
     case Qt::Key_Right:
         snake->changeDirection(DIRECTION_EAST);
         break;
+    case Qt::Key_S:
     case Qt::Key_Down:
         snake->changeDirection(DIRECTION_SOUTH);
         break;
+    case Qt::Key_A:
     case Qt::Key_Left:
         snake->changeDirection(DIRECTION_WEST);
         break;
@@ -104,18 +108,10 @@ void GameDrawer::keyPressEvent(QKeyEvent *event)
 
 void GameDrawer::mousePressEvent(QMouseEvent *event)
 {
-    switch (gameState) {
-    case GS_PAUSED:
-        gameState = GS_PLAY;
-        break;
-    case GS_PLAY:
-        gameState = GS_PAUSED;
-        break;
-    default:
-        break;
-    }
-    repaint();
+    pause();
 }
+
+
 
 void GameDrawer::drawBorders(QPainter &qp)
 {
@@ -198,12 +194,33 @@ void GameDrawer::drawScore(QPainter &qp)
     qp.drawText(10, this->size().height()*0.975, s.c_str());
 }
 
+void GameDrawer::pause()
+{
+    switch (gameState) {
+    case GS_PAUSED:
+        gameState = GS_PLAY;
+        break;
+    case GS_PLAY:
+        gameState = GS_PAUSED;
+        break;
+    case GS_END:
+        startGame(borders, gameSpeed);
+    default:
+        break;
+    }
+    repaint();
+}
+
 void GameDrawer::startGame(bool borders, int speed)
 {
     this->borders = borders;
     this->gameSpeed = speed;
 
     gameState = GS_PAUSED;
+    if (game)
+        delete game;
+    if (timer->isActive())
+        timer->stop();
     game = new Game(borders);
     timer->start(gameSpeed);
     repaint();
@@ -212,8 +229,23 @@ void GameDrawer::startGame(bool borders, int speed)
 
 void GameDrawer::nextFrame()
 {
+    if (!game)
+        return;
+    Snake * snake = game->getSnake();
     if (gameState == GS_PLAY)
         if (game->nextFrame())
+        {
+            timer->stop();
+            timer->start(SPEED_FAST);
+            gameState = GS_LOST;
+        }
+    if (gameState == GS_LOST)
+        if (snake->body.size() > 1)
+            snake->body.pop_back();
+        else
+        {
             gameState = GS_END;
+            timer->stop();
+        }
     repaint();
 }

@@ -9,6 +9,7 @@ Snake::Snake(vector<vector<Point> > &v) : v(v)
     int startx = MAP_W/2;
     int starty = MAP_H/2;
     direction = DIRECTION_EAST;
+    newDirection = DIRECTION_EAST;
     for (int i = 0; i < START_LENGTH; i++)
     {
         body.push_back(&v[startx-i][starty]);
@@ -69,19 +70,15 @@ int Snake::nextFrame()
     if (crash)
         return -1;
 
-    block = false;
     return 0;
 }
 
 void Snake::changeDirection(int d)
 {
-    if (block)
-        return;
     if ((direction == DIRECTION_NORTH && d == DIRECTION_SOUTH) ||
-        (direction == DIRECTION_SOUTH && d == DIRECTION_NORTH) ||
-        (direction == DIRECTION_EAST && d == DIRECTION_WEST) ||
-        (direction == DIRECTION_WEST && d == DIRECTION_EAST))
-        return;
-
+            (direction == DIRECTION_SOUTH && d == DIRECTION_NORTH) ||
+            (direction == DIRECTION_EAST && d == DIRECTION_WEST) ||
+            (direction == DIRECTION_WEST && d == DIRECTION_EAST))
+    return;
     newDirection = d;
 }

@@ -11,10 +11,11 @@
 #define GS_END     1
 #define GS_PAUSED  2
 #define GS_PLAY    3
+#define GS_LOST    4
 
-#define SPEED_SLOW 300
-#define SPEED_MEDIUM 200
-#define SPEED_FAST 100
+#define SPEED_SLOW 250
+#define SPEED_MEDIUM 100
+#define SPEED_FAST 50
 
 class GameDrawer : public QWidget
 {
@@ -47,6 +48,7 @@ protected:
     void drawSnacks(QPainter &qp);
     void drawDebugGrid(QPainter &qp);
     void drawScore(QPainter &qp);
+    void pause();
 
 };
 

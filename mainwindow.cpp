@@ -24,6 +24,16 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionNew_game_triggered()
 {
+    newGame();
+}
+
+void MainWindow::on_actionBorders_triggered()
+{
+    newGame();
+}
+
+void MainWindow::newGame()
+{
     int gameSpeed;
     bool borders = findChild<QAction*>("actionBorders")->isChecked();
 
@@ -35,4 +45,19 @@ void MainWindow::on_actionNew_game_triggered()
         gameSpeed = SPEED_FAST;
 
     findChild<GameDrawer*>("drawer")->startGame(borders, gameSpeed);
+}
+
+void MainWindow::on_actionSlow_triggered()
+{
+    newGame();
+}
+
+void MainWindow::on_actionMedium_triggered()
+{
+    newGame();
+}
+
+void MainWindow::on_actionFast_triggered()
+{
+    newGame();
 }

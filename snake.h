@@ -11,7 +11,7 @@
 #define MAP_W 24
 #define MAP_H 16
 
-#define START_LENGTH 10
+#define START_LENGTH 4
 
 #define DIRECTION_EAST  0
 #define DIRECTION_SOUTH 1
@@ -23,7 +23,6 @@ class Snake
 private:
     int direction;         //Direction of snake
     int newDirection;
-    bool block = false;
     std::vector<std::vector<Point>> &v; //Board
 
 public:
