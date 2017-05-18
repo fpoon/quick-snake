@@ -16,19 +16,13 @@
 
 using namespace std;
 
-GameDrawer::GameDrawer(QWidget *parent) : QWidget(parent), snake(nullptr)
+GameDrawer::GameDrawer(QWidget *parent) : QWidget(parent)
 {
-    map.resize(MAP_W);
-    for (int x = 0; x < map.size(); x++)
-        for (int y = 0; y < MAP_H; y++)
-            map[x].push_back({x, y, PTYPE_NOTHING});
     startGame();
 }
 
 GameDrawer::~GameDrawer()
 {
-    if (snake)
-        delete snake;
 }
 
 void GameDrawer::paintEvent(QPaintEvent *event)
@@ -51,21 +45,10 @@ void GameDrawer::paintEvent(QPaintEvent *event)
 
 void GameDrawer::keyPressEvent(QKeyEvent *event)
 {
-    int size;
+    Snake * snake = game->getSnake();
     switch (event->key()) {
     case Qt::Key_Space:
-        snake->nextFrame();
-        if (snack && snack->type != PTYPE_SNACK)
-            placeSnack();
-        size = swallowed.size();
-
-        for (int i = 0; i < size; i++)
-        {
-            if (swallowed.back()->type == PTYPE_NOTHING)
-                swallowed.pop_back();
-            else
-                break;
-        }
+        game->nextFrame();
         //printf("Space bar\n");
         break;
     case Qt::Key_Up:
@@ -98,6 +81,7 @@ void GameDrawer::drawBorders(QPainter &qp)
 
 void GameDrawer::drawSnake(QPainter &qp)
 {
+    Snake *snake = game->getSnake();
     if (!snake)
         return;
     list<Point*> body(snake->body);
@@ -122,6 +106,9 @@ void GameDrawer::drawSnake(QPainter &qp)
 
 void GameDrawer::drawSnacks(QPainter &qp)
 {
+    Point *snack = game->getSnack();
+    auto swallowed = game->getSwallowed();
+
     float xOff, yOff;
     if (cellW > cellH)
     {
@@ -154,25 +141,9 @@ void GameDrawer::drawDebugGrid(QPainter &qp)
          qp.drawLine(0, y, w, y);
 }
 
-void GameDrawer::placeSnack()
-{
-    int x,y;
-    if (snack)
-        swallowed.push_front(snack);
-    do {
-        x = rand()%MAP_W;
-        y = rand()%MAP_H;
-    } while (map[x][y].type != PTYPE_NOTHING);
-    snack = &map[x][y];
-    snack->type = PTYPE_SNACK;
-}
-
 void GameDrawer::startGame()
 {
-    if (snake)
-        delete snake;
-    snake = new Snake(map);
-    placeSnack();
+    game = new Game();
     //snake->nextFrame();
 
 }

@@ -26,11 +26,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += main.cpp\
         mainwindow.cpp \
     snake.cpp \
-    gamedrawer.cpp
+    gamedrawer.cpp \
+    game.cpp
 
 HEADERS  += mainwindow.h \
     snake.h \
     point.h \
-    gamedrawer.h
+    gamedrawer.h \
+    game.h
 
 FORMS    += mainwindow.ui

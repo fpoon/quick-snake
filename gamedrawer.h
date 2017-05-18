@@ -4,6 +4,7 @@
 #include <QWidget>
 
 #include "snake.h"
+#include "game.h"
 
 class GameDrawer : public QWidget
 {
@@ -19,9 +20,8 @@ protected:
     int w,h;
     float cellW,cellH;
     int topOffset = 20;
-    Point * snack = nullptr;
-    std::list<Point*> swallowed;
-    Snake * snake = nullptr;
+
+    Game * game;
 
     void paintEvent(QPaintEvent *event) override;
     void keyPressEvent(QKeyEvent* event) override;
@@ -30,7 +30,6 @@ protected:
     void drawSnake(QPainter &qp);
     void drawSnacks(QPainter &qp);
     void drawDebugGrid(QPainter &qp);
-    void placeSnack();
     void startGame();
 };
 
