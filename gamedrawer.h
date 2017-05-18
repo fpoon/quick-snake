@@ -19,8 +19,8 @@ protected:
     int w,h;
     float cellW,cellH;
     int topOffset = 20;
-    Point * snack;
-    Point * swallowed;
+    Point * snack = nullptr;
+    std::list<Point*> swallowed;
     Snake * snake = nullptr;
 
     void paintEvent(QPaintEvent *event) override;
@@ -28,6 +28,9 @@ protected:
 
     void drawBorders(QPainter &qp);
     void drawSnake(QPainter &qp);
+    void drawSnacks(QPainter &qp);
+    void drawDebugGrid(QPainter &qp);
+    void placeSnack();
     void startGame();
 };
 

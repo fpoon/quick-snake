@@ -2,6 +2,7 @@
 
 #include <list>
 #include <cmath>
+#include <cstdlib>
 
 #include <QPainter>
 #include <QColor>
@@ -10,7 +11,8 @@
 
 #include "snake.h"
 
-#define LESSER(x,y) x<y?x:y
+#define LESSER(x,y) ((x)<(y)?(x):(y))
+#define GREATER(x,y) ((x)>(y)?(x):(y))
 
 using namespace std;
 
@@ -38,15 +40,32 @@ void GameDrawer::paintEvent(QPaintEvent *event)
 
     QPainter qp(this);
     qp.fillRect(0, 0, w, h, QColor(0,0,0));
+
+
+    drawDebugGrid(qp);
     drawBorders(qp);
+    drawSnacks(qp);
     drawSnake(qp);
+
 }
 
 void GameDrawer::keyPressEvent(QKeyEvent *event)
 {
+    int size;
     switch (event->key()) {
     case Qt::Key_Space:
         snake->nextFrame();
+        if (snack && snack->type != PTYPE_SNACK)
+            placeSnack();
+        size = swallowed.size();
+
+        for (int i = 0; i < size; i++)
+        {
+            if (swallowed.back()->type == PTYPE_NOTHING)
+                swallowed.pop_back();
+            else
+                break;
+        }
         //printf("Space bar\n");
         break;
     case Qt::Key_Up:
@@ -82,6 +101,7 @@ void GameDrawer::drawSnake(QPainter &qp)
     if (!snake)
         return;
     list<Point*> body(snake->body);
+    int size = body.size();
     //printf("Snake: %d\n", body.size());
     Point *head = body.front();
     body.pop_front();
@@ -89,14 +109,62 @@ void GameDrawer::drawSnake(QPainter &qp)
 
     qp.setPen(QPen(QColor(128,255,0), LESSER(cellW,cellH)/2, Qt::SolidLine));
 
-    for (int i = 0; i < body.size()-1; i++) {
+    for (int i = 0; i < size-1; i++) {
         if (abs(head->x - next->x) <= 1 && abs(head->y - next->y) <= 1)
-            qp.drawLine(head->x*cellW+cellW/2, head->y*cellH+cellH/2,
-                    next->x*cellW+cellW/2, next->y*cellH+cellH/2);
+            qp.drawLine((float)head->x*cellW+cellW/2.f, (float)head->y*cellH+cellH/2.f,
+                    (float)next->x*cellW+cellW/2.f, (float)next->y*cellH+cellH/2.f);
         head = next;
         body.pop_front();
         next = body.front();
+        //printf ("i = %d\n", i);
     }
+}
+
+void GameDrawer::drawSnacks(QPainter &qp)
+{
+    float xOff, yOff;
+    if (cellW > cellH)
+    {
+        xOff = (GREATER(cellW, cellH)-LESSER(cellW, cellH))/2.f;
+        yOff = 0;
+    } else
+    {
+        yOff = (GREATER(cellW, cellH)-LESSER(cellW, cellH))/2.f;
+        xOff = 0;
+    }
+
+    qp.setPen(QPen(QColor(128,255,0), 1, Qt::SolidLine));
+    if (snack && snack->type == PTYPE_SNACK)
+        qp.fillRect(snack->x*cellW+xOff, snack->y*cellH+yOff,
+                    LESSER(cellW, cellH)+1, LESSER(cellW, cellH)+1,
+                    QBrush(QColor(128,255,0), Qt::SolidPattern));
+    for (auto p : swallowed)
+        if (p && p->type == PTYPE_SNAKE)
+            qp.fillRect(p->x*cellW+xOff, p->y*cellH+yOff,
+                        LESSER(cellW, cellH)+1, LESSER(cellW, cellH)+1,
+                        QBrush(QColor(128,255,0), Qt::SolidPattern));
+}
+
+void GameDrawer::drawDebugGrid(QPainter &qp)
+{
+    qp.setPen(QPen(QColor(128,128,128), 1, Qt::SolidLine));
+    for (float x = 0; x < w; x += cellW)
+         qp.drawLine(x, 0, x, h);
+    for (float y = 0; y < h; y += cellH)
+         qp.drawLine(0, y, w, y);
+}
+
+void GameDrawer::placeSnack()
+{
+    int x,y;
+    if (snack)
+        swallowed.push_front(snack);
+    do {
+        x = rand()%MAP_W;
+        y = rand()%MAP_H;
+    } while (map[x][y].type != PTYPE_NOTHING);
+    snack = &map[x][y];
+    snack->type = PTYPE_SNACK;
 }
 
 void GameDrawer::startGame()
@@ -104,6 +172,7 @@ void GameDrawer::startGame()
     if (snake)
         delete snake;
     snake = new Snake(map);
+    placeSnack();
     //snake->nextFrame();
 
 }
