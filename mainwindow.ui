@@ -34,7 +34,11 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="GameDrawer" name="widget" native="true"/>
+     <widget class="GameDrawer" name="drawer" native="true">
+      <property name="focusPolicy">
+       <enum>Qt::ClickFocus</enum>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>

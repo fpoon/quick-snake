@@ -1,10 +1,16 @@
+#include <vector>
+
 #include "snake.h"
 
-Snake::Snake(std::vector<std::vector<Point> > &v, int w, int startx, int starty) : v(v)
+using namespace std;
+
+Snake::Snake(vector<vector<Point> > &v) : v(v)
 {
+    int startx = MAP_W/2;
+    int starty = MAP_H/2;
     direction = DIRECTION_EAST;
-    for (int i = 0; i < START_LENGTH; i--)
-        body.push_back(&v[startx-i][starty-i]);
+    for (int i = 0; i < START_LENGTH; i++)
+        body.push_back(&v[startx-i][starty]);
 }
 
 int Snake::nextFrame()
@@ -32,11 +38,11 @@ int Snake::nextFrame()
 
     x += head->x;
     y += head->y;
-    if (x > MAP_W)
+    if (x >= MAP_W)
         x = 0;
     if (x < 0)
         x = MAP_W-1;
-    if (y > MAP_H)
+    if (y >= MAP_H)
         y = 0;
     if (y < 0)
         y = MAP_H-1;
@@ -55,4 +61,16 @@ int Snake::nextFrame()
     tail->type = PTYPE_NOTHING;
     body.pop_back();
 
+    return 0;
+}
+
+void Snake::changeDirection(int d)
+{
+    if ((direction == DIRECTION_NORTH && d == DIRECTION_SOUTH) ||
+        (direction == DIRECTION_SOUTH && d == DIRECTION_NORTH) ||
+        (direction == DIRECTION_EAST && d == DIRECTION_WEST) ||
+        (direction == DIRECTION_WEST && d == DIRECTION_EAST))
+        return;
+
+    direction = d;
 }

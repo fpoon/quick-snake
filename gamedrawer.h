@@ -10,16 +10,25 @@ class GameDrawer : public QWidget
     Q_OBJECT
 public:
     explicit GameDrawer(QWidget *parent = 0);
-
+    ~GameDrawer();
 signals:
 
 public slots:
 protected:
+    std::vector<std::vector<Point>> map;
     int w,h;
-    int cellW,cellH;
+    float cellW,cellH;
     int topOffset = 20;
+    Point * snack;
+    Point * swallowed;
+    Snake * snake = nullptr;
+
     void paintEvent(QPaintEvent *event) override;
+    void keyPressEvent(QKeyEvent* event) override;
+
     void drawBorders(QPainter &qp);
+    void drawSnake(QPainter &qp);
+    void startGame();
 };
 
 #endif // GAMEDRAWER_H
