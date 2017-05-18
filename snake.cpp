@@ -10,12 +10,16 @@ Snake::Snake(vector<vector<Point> > &v) : v(v)
     int starty = MAP_H/2;
     direction = DIRECTION_EAST;
     for (int i = 0; i < START_LENGTH; i++)
+    {
         body.push_back(&v[startx-i][starty]);
+        v[startx-i][starty].type = PTYPE_SNAKE;
+    }
 }
 
 int Snake::nextFrame()
 {
     int x,y;
+    bool crash = false;
     Point *head = body.front();
     Point *tail = body.back();
 
@@ -47,8 +51,9 @@ int Snake::nextFrame()
     if (y < 0)
         y = MAP_H-1;
 
-    if (v[x][y].type == PTYPE_BORDER)
-        return -1;
+    if (v[x][y].type == PTYPE_BORDER || v[x][y].type == PTYPE_SNAKE)
+        if (!(tail->x == x && tail->y == y))
+            crash = true;
     if (v[x][y].type == PTYPE_SNACK)
     {
         body.push_back(tail);
@@ -60,12 +65,17 @@ int Snake::nextFrame()
 
     tail->type = PTYPE_NOTHING;
     body.pop_back();
+    if (crash)
+        return -1;
 
+    block = false;
     return 0;
 }
 
 void Snake::changeDirection(int d)
 {
+    if (block)
+        return;
     if ((direction == DIRECTION_NORTH && d == DIRECTION_SOUTH) ||
         (direction == DIRECTION_SOUTH && d == DIRECTION_NORTH) ||
         (direction == DIRECTION_EAST && d == DIRECTION_WEST) ||
@@ -73,4 +83,5 @@ void Snake::changeDirection(int d)
         return;
 
     direction = d;
+    block = true;
 }

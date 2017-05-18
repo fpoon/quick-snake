@@ -10,6 +10,8 @@
 #include <QBrush>
 #include <QKeyEvent>
 #include <QFont>
+#include <QAction>
+#include <QTimer>
 
 #include "snake.h"
 
@@ -20,17 +22,23 @@ using namespace std;
 
 GameDrawer::GameDrawer(QWidget *parent) : QWidget(parent)
 {
-    startGame();
+    gameSpeed = SPEED_SLOW;
+    gameState = GS_NO_GAME;
+    game = nullptr;
+    timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(nextFrame()));
 }
 
 GameDrawer::~GameDrawer()
 {
     if (game)
         delete game;
+    delete timer;
 }
 
 void GameDrawer::paintEvent(QPaintEvent *event)
 {
+    string s;
     w = this->size().width();
     h = this->size().height();
 
@@ -40,19 +48,40 @@ void GameDrawer::paintEvent(QPaintEvent *event)
     cellW = (float)w/(float)MAP_W;
     cellH = (float)h/(float)MAP_H;
 
-    drawDebugGrid(qp);
-    drawBorders(qp);
-    drawSnacks(qp);
-    drawSnake(qp);
-    drawScore(qp);
+    qp.setPen(QPen(QColor(128,255,0), LESSER(cellW,cellH)/2, Qt::SolidLine));
+    qp.setFont(QFont("Monospace", size().height()*0.05));
+
+    switch (gameState)
+    {
+        case GS_NO_GAME:
+            qp.drawText(20, this->size().height()*0.55, "Snake? SNAKE?! SNAAAAKEE!!!");
+        break;
+        case GS_END:
+            s = "Your score: ";
+            s += to_string(game->getScore());
+            qp.drawText(20, this->size().height()*0.55, s.c_str());
+        break;
+        case GS_PAUSED:
+            qp.drawText(20, this->size().height()*0.55, "Click to play.");
+        break;
+        default:
+            drawBorders(qp);
+            drawSnacks(qp);
+            drawSnake(qp);
+            drawScore(qp);
+        break;
+    }
 }
 
 void GameDrawer::keyPressEvent(QKeyEvent *event)
 {
+    if (gameState != GS_PLAY)
+        return;
     Snake * snake = game->getSnake();
+
     switch (event->key()) {
     case Qt::Key_Space:
-        game->nextFrame();
+
         //printf("Space bar\n");
         break;
     case Qt::Key_Up:
@@ -73,9 +102,25 @@ void GameDrawer::keyPressEvent(QKeyEvent *event)
     this->repaint();
 }
 
+void GameDrawer::mousePressEvent(QMouseEvent *event)
+{
+    switch (gameState) {
+    case GS_PAUSED:
+        gameState = GS_PLAY;
+        break;
+    case GS_PLAY:
+        gameState = GS_PAUSED;
+        break;
+    default:
+        break;
+    }
+    repaint();
+}
+
 void GameDrawer::drawBorders(QPainter &qp)
 {
-
+    if(!borders)
+        return;
     qp.setPen(QPen(QColor(128,255,0), LESSER(cellW,cellH)/2, Qt::SolidLine));
     qp.drawLine(cellW/2, cellH/2, w-cellW/2, cellH/2);
     qp.drawLine(cellW/2, cellH/2, cellW/2, h-cellH/2);
@@ -153,9 +198,22 @@ void GameDrawer::drawScore(QPainter &qp)
     qp.drawText(10, this->size().height()*0.975, s.c_str());
 }
 
-void GameDrawer::startGame()
+void GameDrawer::startGame(bool borders, int speed)
 {
-    game = new Game();
-    //snake->nextFrame();
+    this->borders = borders;
+    this->gameSpeed = speed;
 
+    gameState = GS_PAUSED;
+    game = new Game(borders);
+    timer->start(gameSpeed);
+    repaint();
+
+}
+
+void GameDrawer::nextFrame()
+{
+    if (gameState == GS_PLAY)
+        if (game->nextFrame())
+            gameState = GS_END;
+    repaint();
 }

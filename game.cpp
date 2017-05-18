@@ -1,6 +1,20 @@
 #include "game.h"
 #include "snake.h"
 
+void Game::placeBorders()
+{
+    for (auto &p : map.front())
+        p.type = PTYPE_BORDER;
+    for (auto &p : map.back())
+        p.type = PTYPE_BORDER;
+    for (auto &l : map)
+    {
+        l.front().type = PTYPE_BORDER;
+        l.back().type = PTYPE_BORDER;
+    }
+
+}
+
 void Game::placeSnack()
 {
     int x,y;
@@ -14,12 +28,14 @@ void Game::placeSnack()
     snack->type = PTYPE_SNACK;
 }
 
-Game::Game()
+Game::Game(bool borders)
 {
     map.resize(MAP_W);
     for (int x = 0; x < map.size(); x++)
         for (int y = 0; y < MAP_H; y++)
             map[x].push_back({x, y, PTYPE_NOTHING});
+    if (borders)
+        placeBorders();
     snake = new Snake(map);
     placeSnack();
 }
@@ -30,10 +46,10 @@ Game::~Game()
         delete snake;
 }
 
-void Game::nextFrame()
+int Game::nextFrame()
 {
     int size;
-    snake->nextFrame();
+    int ret = snake->nextFrame();
     if (snack && snack->type != PTYPE_SNACK) {
         score++;
         placeSnack();
@@ -47,6 +63,7 @@ void Game::nextFrame()
         else
             break;
     }
+    return ret;
 }
 
 Point *Game::getSnack()

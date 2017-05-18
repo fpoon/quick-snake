@@ -8,8 +8,8 @@
 
 #include "point.h"
 
-#define MAP_W 32
-#define MAP_H 32
+#define MAP_W 24
+#define MAP_H 16
 
 #define START_LENGTH 10
 
@@ -22,6 +22,7 @@ class Snake
 {
 private:
     int direction;         //Direction of snake
+    bool block = false;
     std::vector<std::vector<Point>> &v; //Board
 
 public:

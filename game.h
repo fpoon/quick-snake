@@ -17,12 +17,12 @@ private:
     std::list<Point*> swallowed;
     Snake * snake = nullptr;
     int score = 0;
-
+    void placeBorders();
     void placeSnack();
 public:
-    Game();
+    Game(bool borders);
     ~Game();
-    void nextFrame();
+    int nextFrame();
     Point* getSnack();
     std::list<Point *> getSwallowed();
     int getScore();
